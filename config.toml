@@ -1,0 +1,73 @@
+[ping]
+# How many times to retry ping before failing and exiting
+pingRetrySleep = "5s"
+# How much time to wait before retrying after a failed ping
+# Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h"
+maxPingRetries = 5
+
+[wallpaper]
+# Apply wallpaper after download
+ApplyAfterDownload = true
+# Delete wallpaper after application
+DeleteAfterApply = true
+
+[chromecast]
+# Advanced: You can input google image "deep direct" link parameters here 
+# You can find more info here : https://sites.google.com/site/picasaresources/google-photos-1/how-to-get-a-direct-link-to-an-image
+# If you don't know what to do, then just leave it as the default (the full image)
+parameters = "w0-h0"
+
+[bing]
+# Resolution of the base image
+# Some valid options are: UHD, 1920x1200, 1920x1080, 1366x768, 1280x768, 1024x768, 800x600, 800x480, 768x1280, 720x1280, 640x480, 480x800, 400x240, 320x240, 240x320
+# Every option can be inverted to get a vertical image (eg. 1366x768 => 768x1366) except UHD
+URLResolution = "UHD"
+# Image quality
+quality = 100
+# If you have a weird display resolution you can resize the image here by specifying height and width
+# Leave both at 0 if you don't want to resize
+height = 0
+width = 0
+# List of markets to choose randomly
+# These are all the supported markets (i think, there might be more)
+# Source: https://learn.microsoft.com/en-us/bing/search-apis/bing-web-search/reference/market-codes
+markets = [
+    "es-AR",
+    "en-AU",
+    "de-AT",
+    "nl-BE",
+    "fr-BE",
+    "pt-BR",
+    "en-CA",
+    "fr-CA",
+    "es-CL",
+    "da-DK",
+    "fi-FI",
+    "fr-FR",
+    "de-DE",
+    "zh-HK",
+    "en-IN",
+    "en-ID",
+    "it-IT",
+    "ja-JP",
+    "ko-KR",
+    "en-MY",
+    "es-MX",
+    "nl-NL",
+    "en-NZ",
+    "no-NO",
+    "zh-CN",
+    "pl-PL",
+    "en-PH",
+    "ru-RU",
+    "en-ZA",
+    "es-ES",
+    "sv-SE",
+    "fr-CH",
+    "de-CH",
+    "zh-TW",
+    "tr-TR",
+    "en-GB",
+    "en-US",
+    "es-US",
+]
