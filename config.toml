@@ -1,9 +1,12 @@
 [ping]
-# How many times to retry ping before failing and exiting
-pingRetrySleep = "5s"
 # How much time to wait before retrying after a failed ping
 # Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h"
+pingRetrySleep = "5s"
+# How many times to retry ping before failing and exiting
 maxPingRetries = 5
+# How much time to wait before retrying after a failed ping
+# Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h"
+timeout = "500ms"
 
 [wallpaper]
 # Apply wallpaper after download

@@ -1,12 +1,9 @@
 package main
 
-// why am i trying to code in a language i don't even know
-
 import (
-	"log"
+	"hash/maphash"
 	"math/rand"
 	"os"
-	"time"
 
 	"github.com/reujab/wallpaper"
 	dnld "github.com/spaceox/gowall/downloaders"
@@ -14,6 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Made this to make the code a bit cleaner
 func check(err error) {
 	if err != nil {
 		panic(err)
@@ -21,41 +19,62 @@ func check(err error) {
 }
 
 func init() {
+	// Loads config from config.toml
 	lib.LoadConfig()
-	// checks if pc is connected
-	err := lib.Pong(viper.GetInt("ping.maxPingRetries"), viper.GetString("ping.pingRetrySleep"))
+
+	// Checks if pc is connected
+	err := lib.Pong(
+		viper.GetInt("ping.maxPingRetries"),
+		viper.GetString("ping.pingRetrySleep"),
+		viper.GetString("ping.timeout"),
+	)
 	check(err)
 
-	// initializes rand with current time as seed
-	rand.Seed(time.Now().Unix())
+	// Initializes rand with current time as seed
+	// TODO: Remove? when go 1.20 releases
+	//rand.Seed(time.Now().Unix())
+	rand.Seed(int64(new(maphash.Hash).Sum64()))
 }
 
 func main() {
-	var pathToImage string
-	var err error
+	// Initializing variables here to access the variables inside the switch, ouside
+	var (
+		pathToImage string
+		err         error
+	)
 	switch rand.Intn(2) {
 	case 0:
-		pathToImage, err = dnld.BingWallpaper(viper.GetStringSlice("bing.markets"), viper.GetString("bing.URLResolution"), viper.GetInt("bing.quality"), viper.GetInt("bing.height"), viper.GetInt("width"))
+		// Bing wallpaper
+		pathToImage, err = dnld.BingWallpaper(
+			viper.GetStringSlice("bing.markets"),
+			viper.GetString("bing.URLResolution"),
+			viper.GetInt("bing.quality"),
+			viper.GetInt("bing.height"),
+			viper.GetInt("bing.width"),
+		)
 		check(err)
 	case 1:
-		pathToImage, err = dnld.ChromecastWallpaper(viper.GetString("chromecast.parameters"))
+		// Chromecast wallpaper
+		pathToImage, err = dnld.ChromecastWallpaper(
+			viper.GetString("chromecast.parameters"),
+		)
 		check(err)
 	}
 
-	// applies wallpaper
+	// Apply wallpaper from pathToImage
 	if viper.GetBool("wallpaper.applyafterdownload") {
-		log.Println("applying image, this could take a while")
+		lib.LogInColor.Info("Applying image, this might take a while")
 		err = wallpaper.SetFromFile(pathToImage)
 		check(err)
-		log.Println("image applied!")
+		lib.LogInColor.Info("Image applied")
 	}
 
-	// deletes wallpaper
+	// Delete wallpaper
 	if viper.GetBool("wallpaper.deleteafterapply") {
 		err = os.Remove(pathToImage)
 		check(err)
-		log.Println("image deleted")
+		lib.LogInColor.Info("Image deleted")
 	}
 
-	log.Println("done")
+	lib.LogInColor.Info("Done")
 }

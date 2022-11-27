@@ -8,6 +8,7 @@ require (
 	github.com/reujab/wallpaper v0.0.0-20210630195606-5f9f655b3740
 	github.com/spf13/viper v1.14.0
 	github.com/tidwall/gjson v1.14.4
+	github.com/withmandala/go-log v0.1.0
 )
 
 require (
@@ -26,9 +27,11 @@ require (
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
+	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.2.0 // indirect
+	golang.org/x/term v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

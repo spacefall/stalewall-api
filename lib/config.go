@@ -1,36 +1,39 @@
 package lib
 
 import (
-	"fmt"
-
 	"github.com/spf13/viper"
 )
 
 func LoadConfig() {
-	// Default config
-	// Ping
-	viper.SetDefault("ping.pingRetrySleep", "5s")
-	viper.SetDefault("ping.maxPingRetries", 5)
-	// Wallpaper application
-	viper.SetDefault("wallpaper.ApplyAfterDownload", true)
-	viper.SetDefault("wallpaper.DeleteAfterApply", true)
-	// Chromecast
-	viper.SetDefault("chromecast.parameters", "h0-w0")
-	// Bing
-	viper.SetDefault("bing.URLResolution", "UHD")
-	viper.SetDefault("bing.quality", 100)
-	viper.SetDefault("bing.height", 0)
-	viper.SetDefault("bing.width", 0)
-	viper.SetDefault("bing.markets", []string{"en-US", "ja-JP", "en-AU", "en-UK", "de-DE", "en-NZ", "en-CA"})
+	listOfKeys := []string{
+		"ping.pingRetrySleep",
+		"ping.maxPingRetries",
+		"wallpaper.ApplyAfterDownload",
+		"wallpaper.DeleteAfterApply",
+		"chromecast.parameters",
+		"bing.URLResolution",
+		"bing.quality",
+		"bing.height",
+		"bing.width",
+		"bing.markets",
+	}
 
 	// Config name, extension and path
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
 	viper.AddConfigPath(".")
 
-	// Check if config is loading fine
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			LogInColor.Fatal("config.toml doesn't exist. Please create one and retry.")
+		} else {
+			panic(err)
+		}
+	}
+
+	for i := 0; i < len(listOfKeys); i++ {
+		if !viper.IsSet(listOfKeys[i]) {
+			LogInColor.Fatal("'" + listOfKeys[i] + "' doesn't exist in config.toml. Please set it and retry.")
+		}
 	}
 }

@@ -1,47 +1,68 @@
 package downloaders
 
 import (
-	"log"
+	"io"
 	"math/rand"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	lib "github.com/spaceox/gowall/lib"
+	"github.com/tidwall/gjson"
 )
 
-func BingWallpaper(markets []string, URLResolution string, quality int, height int, width int) (string, error) {
-	// generates the bing link, randomizing the index and market
-	bingLink := "https://www.bing.com/HPImageArchive.aspx?format=js&idx=" + strconv.Itoa(rand.Intn(7)) + "&n=1&mkt=" + markets[rand.Intn(len(markets))]
-	log.Println("url:", bingLink)
-
-	// get image baseurl
-	imageUrlBase, err := lib.GetImageBaseURLBing(bingLink)
+// Gets urlbase from provided Bing image archive url
+func getImageBaseURLBing(link string) (string, error) {
+	// Loads the webpage
+	res, err := http.Get(link)
 	if err != nil {
 		return "", err
 	}
-	log.Println("imageUrlBase:", imageUrlBase)
 
-	// create imagename
+	// Gets the json
+	content, err := io.ReadAll(res.Body)
+	defer res.Body.Close()
+	if err != nil {
+		return "", err
+	}
+
+	// Return urlbase
+	return gjson.GetBytes(content, "images.0.urlbase").String(), nil
+}
+
+func BingWallpaper(markets []string, URLResolution string, quality int, height int, width int) (string, error) {
+	// Generates the bing link, randomizing the index and market
+	bingLink := "https://www.bing.com/HPImageArchive.aspx?format=js&idx=" + strconv.Itoa(rand.Intn(7)) + "&n=1&mkt=" + markets[rand.Intn(len(markets))]
+	lib.LogInColor.Info("JSON URL:", bingLink)
+
+	// Get image baseurl
+	imageUrlBase, err := getImageBaseURLBing(bingLink)
+	if err != nil {
+		return "", err
+	}
+
+	// Define filename
 	imageName := strings.Split(imageUrlBase, "OHR.")[1] + ".jpg"
-	log.Println("imageName:", imageName)
 
 	// create imageurl
 	finalLink := "http://bing.com" + imageUrlBase + "_" + URLResolution + ".jpg&qlt=" + strconv.Itoa(quality) + "&h=" + strconv.Itoa(height) + "&w=" + strconv.Itoa(width)
-	log.Println("imageurl:", finalLink)
+	lib.LogInColor.Info("Final URL:", finalLink)
 
 	// download
 	err = lib.DownloadFile(finalLink, imageName)
 	if err != nil {
 		return "", err
 	}
-	// gets path to wallpaper
+
+	// Gets path to wallpaper
 	workdir, err := os.Getwd()
-	pathToImage := filepath.Join(workdir, imageName)
 	if err != nil {
 		return "", err
 	}
-	log.Println("path:", pathToImage)
+	pathToImage := filepath.Join(workdir, imageName)
+	lib.LogInColor.Info("Path to image:", pathToImage)
+
 	return pathToImage, nil
 }
