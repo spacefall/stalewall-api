@@ -22,6 +22,10 @@ func init() {
 	// Loads config from config.toml
 	lib.LoadConfig()
 
+	if viper.GetBool("wallpaper.quietmode") {
+		lib.LogInColor.Quiet()
+	}
+
 	// Checks if pc is connected
 	err := lib.Pong(
 		viper.GetInt("ping.maxPingRetries"),
@@ -42,7 +46,7 @@ func main() {
 		pathToImage string
 		err         error
 	)
-	switch rand.Intn(2) {
+	switch rand.Intn(3) {
 	case 0:
 		// Bing wallpaper
 		pathToImage, err = dnld.BingWallpaper(
@@ -57,6 +61,13 @@ func main() {
 		// Chromecast wallpaper
 		pathToImage, err = dnld.ChromecastWallpaper(
 			viper.GetString("chromecast.parameters"),
+		)
+		check(err)
+	case 2:
+		// Spotlight wallpaper
+		pathToImage, err = dnld.SpotlightWallpaper(
+			viper.GetStringSlice("spotlight.locales"),
+			viper.GetBool("spotlight.portrait"),
 		)
 		check(err)
 	}

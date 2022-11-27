@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"path/filepath"
+
 	"strconv"
 	"strings"
 
@@ -95,13 +95,6 @@ func ChromecastWallpaper(parameters string) (string, error) {
 		return "", err
 	}
 
-	// Get final path
-	workdir, err := os.Getwd()
-	pathToImage := filepath.Join(workdir, filename)
-	if err != nil {
-		return "", err
-	}
-	lib.LogInColor.Info("Path to image:", pathToImage)
-
-	return pathToImage, nil
+	// Gets path to image
+	return lib.GetFinalPath(filename)
 }

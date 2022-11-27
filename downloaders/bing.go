@@ -4,8 +4,6 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -47,7 +45,10 @@ func BingWallpaper(markets []string, URLResolution string, quality int, height i
 	imageName := strings.Split(imageUrlBase, "OHR.")[1] + ".jpg"
 
 	// create imageurl
-	finalLink := "http://bing.com" + imageUrlBase + "_" + URLResolution + ".jpg&qlt=" + strconv.Itoa(quality) + "&h=" + strconv.Itoa(height) + "&w=" + strconv.Itoa(width)
+	finalLink := "http://bing.com" + imageUrlBase + "_" + URLResolution + ".jpg&qlt=" + strconv.Itoa(quality)
+	if height > 0 && width > 0 {
+		finalLink += "&h=" + strconv.Itoa(height) + "&w=" + strconv.Itoa(width)
+	}
 	lib.LogInColor.Info("Final URL:", finalLink)
 
 	// download
@@ -55,14 +56,6 @@ func BingWallpaper(markets []string, URLResolution string, quality int, height i
 	if err != nil {
 		return "", err
 	}
-
-	// Gets path to wallpaper
-	workdir, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	pathToImage := filepath.Join(workdir, imageName)
-	lib.LogInColor.Info("Path to image:", pathToImage)
-
-	return pathToImage, nil
+	// Gets image path
+	return lib.GetFinalPath(imageName)
 }

@@ -5,18 +5,29 @@ import (
 )
 
 func LoadConfig() {
-	listOfKeys := []string{
+	listOfRequiredKeys := []string{
+		// Ping
 		"ping.pingRetrySleep",
 		"ping.maxPingRetries",
+		// Wallpaper
 		"wallpaper.ApplyAfterDownload",
 		"wallpaper.DeleteAfterApply",
+		"wallpaper.QuietMode",
+		// Chromecast
 		"chromecast.parameters",
+		// Bing
 		"bing.URLResolution",
 		"bing.quality",
-		"bing.height",
-		"bing.width",
 		"bing.markets",
+		// Spotlight
+		"spotlight.locales",
+		"spotlight.portrait",
 	}
+	/*
+		These keys are not required:
+			bing.height
+			bing.width
+	*/
 
 	// Config name, extension and path
 	viper.SetConfigName("config")
@@ -31,9 +42,9 @@ func LoadConfig() {
 		}
 	}
 
-	for i := 0; i < len(listOfKeys); i++ {
-		if !viper.IsSet(listOfKeys[i]) {
-			LogInColor.Fatal("'" + listOfKeys[i] + "' doesn't exist in config.toml. Please set it and retry.")
+	for i := 0; i < len(listOfRequiredKeys); i++ {
+		if !viper.IsSet(listOfRequiredKeys[i]) {
+			LogInColor.Fatal("'" + listOfRequiredKeys[i] + "' doesn't exist in config.toml. Please set it and retry.")
 		}
 	}
 }
