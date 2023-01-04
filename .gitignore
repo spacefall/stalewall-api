@@ -25,3 +25,4 @@ go.work
 
 # various tests
 *.jpg
+.vercel

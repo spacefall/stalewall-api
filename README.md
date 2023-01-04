@@ -1,8 +1,18 @@
 # gowall
- A desktop wallpaper downloader made in go
- It randomly chooses between:
- - Bing's image of the day (current and old photos) (up to 4k)
- - Chromecast screensaver (resolution isn't really settable and it varies a lot)
- - Windows Spotlight (max 1080p)
+ An api that returns a random background from:
+ - Bing's image of the day
+ - Chromecast screensaver
+ - Windows Spotlight
  
- In both cases gowall, downloads a random wallpaper from the ones offered and sets it as the desktop wallpaper
+ ## Api queries
+ #### Chromecast
+ - `cParam`: Uses specified Google Photos parameters instead of `w0-h0`
+ #### Bing
+ - `bMkt`: Uses specified market instead of a random one
+ - `bRes`: Uses specified photo resolution instead of using `UHD`
+ - `bQlt`: Uses specified photo quality instead of `100`
+ - `bH`: Resizes picture to specified height, requires `bW`
+ - `bW`: Resizes picture to specified width, requires `bH`
+ #### Spotlight
+ - `sLocale`: Uses specified locale instead of a random one
+ - `sPortrait`: If present, pictures are going to be in portrait instead of landscape
