@@ -37,11 +37,33 @@ func getImageUrlChromecast(index int) (string, error) {
 	return strings.ReplaceAll(parsedJSON.Get("0").Get(strconv.Itoa(index)).Get("0").String(), "\\u003d", "="), nil
 }
 
-func ChromecastWallpaper(parameters string) (string, error) {
+func ChromecastWallpaper(height int, width int, crop int, portrait bool) (string, error) {
 	// Gets a random url from the list of 50 urls in the chromecast homepage
 	link, err := getImageUrlChromecast(rand.Intn(50))
 	if err != nil {
 		return "", err
+	}
+	var parameters string
+
+	// add crop
+	switch crop {
+	// blind ratio
+	case 1:
+		parameters = fmt.Sprintf("w%d-h%d-c", width, height)
+		break
+
+	// smart ratio
+	case 2:
+		parameters = fmt.Sprintf("w%d-h%d-p", width, height)
+		break
+
+	default:
+		if portrait {
+			parameters = fmt.Sprintf("s%d", height)
+		} else {
+			parameters = fmt.Sprintf("s%d", width)
+		}
+		break
 	}
 
 	// Replace default parameters with modified ones
