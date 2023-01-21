@@ -1,4 +1,4 @@
-module github.com/spaceox/gowall
+module github.com/spaceox/stalewall
 
 go 1.18
 
