@@ -25,7 +25,7 @@ type settings struct {
 	width    int
 	crop     int
 	sLocale  string
-	portrait bool
+	sPortrait bool
 }
 
 func init() {
@@ -48,7 +48,7 @@ func setup(r *http.Request) *settings {
 		height:   1080,
 		width:    1920,
 		crop:     0,
-		portrait: false,
+		sPortrait: false,
 		sLocale:  sLocales[rand.Intn(len(sLocales))],
 		bMkt:     bMarkets[rand.Intn(len(bMarkets))],
 	}
@@ -77,22 +77,22 @@ func setup(r *http.Request) *settings {
 
 		// set if spotlight should use portrait images
 		if config.height > config.width {
-			config.portrait = true
+			config.sPortrait = true
 		} else {
-			config.portrait = false
+			config.sPortrait = false
 		}
 	}
 
 	// crop
 	// smart crop - finds the most interesting part of the image and crops to that
 	// can be enabled only if raw isn't enabled
-	if r.URL.Query().Has("scrop") && !r.URL.Query().Has("raw") {
+    if r.URL.Query().Has("scrop") && r.URL.Query().Has("res") && !r.URL.Query().Has("raw") {
 		config.crop = 2
 	}
 
 	// standard crop - crops from the center
 	// can be enabled only if raw and smart crop isn't enabled
-	if r.URL.Query().Has("crop") && !r.URL.Query().Has("scrop") && !r.URL.Query().Has("raw") {
+    if r.URL.Query().Has("crop") && r.URL.Query().Has("res") && !r.URL.Query().Has("scrop") && !r.URL.Query().Has("raw") {
 		config.crop = 1
 	}
 
@@ -117,7 +117,7 @@ func setup(r *http.Request) *settings {
 
 	// forces spotlight image in portrait
 	if r.URL.Query().Has("portrait") {
-		config.portrait = true
+		config.sPortrait = true
 	}
 
 	return &config
@@ -134,12 +134,12 @@ func getWall(config *settings) string {
 		return createJson("bing", imageUrl)
 	case 1:
 		// Chromecast wallpaper
-		imageUrl, err := providers.ChromecastWallpaper(config.height, config.width, config.crop, config.portrait)
+		imageUrl, err := providers.ChromecastWallpaper(config.height, config.width, config.crop)
 		check(err)
 		return createJson("chromecast", imageUrl)
 	case 2:
 		// Spotlight wallpaper
-		imageUrl, err := providers.SpotlightWallpaper(config.sLocale, config.portrait)
+		imageUrl, err := providers.SpotlightWallpaper(config.sLocale, config.sPortrait)
 		check(err)
 		return createJson("spotlight", imageUrl)
 	}
