@@ -154,6 +154,7 @@ func createJson(source string, url string) string {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	config := setup(r)
 	w.Header().Set("Content-Type", "application/json")
+    w.Header().Set("Access-Control-Allow-Origin", "*")
 	_, err := fmt.Fprintf(w, "%s", getWall(config))
 	check(err)
 }
