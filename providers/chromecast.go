@@ -3,8 +3,6 @@ package providers
 import (
 	"fmt"
 	"math/rand"
-
-	"strconv"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -15,56 +13,57 @@ import (
 const removeBefore = "angular.module('home.constants', []). constant('fakeTimestamp',  null ). constant('initialStateJson', JSON.parse('"
 const removeAfter = "')). constant('isAndroidTv',  false ). constant('isTextPromoEnabled',  false ). constant('isImaxVoiceQueryEnabled',  false ). constant('isManhattan',  false ). constant('isTouchNavigationEnabled',  false ). constant('isVoicePromoLanguage',  true ). constant('isOffersPromoEnabled',  false ). constant('imaxClientLogLevel', 'WARNING'). constant('isGFiberMessagingEnabled',  false ). constant('isImageBytesLoggingEnabled',  false ). constant('isGoogleSansUiEnabled',  false ). constant('isCacMessageThroughCcsEnabled',  true ). constant('isRemoteControlEnabled',  true ). constant('isPreloadingPhotosEnabled',  false ). constant('isSmartCropEnabled',  false ). constant('isDecodeAheadEnabled',  false ). constant('maxPreloadedTopics',  2.0 ). constant('isPauseOnHiddenEnabled',  false ). constant('sendAssistantMessengerContext',  false ). constant('fakeWeatherInfoJson', JSON.parse('null')). constant('minImageFailureDelayMs',  500.0 ). constant('maxImageFailureDelayMs',  10000.0 ). constant('imageFailureBackoffMultiplier',  2.0 );"
 
-// Replaces escaped characters with their non escaped version
-var unescaper = strings.NewReplacer("\\x5b", "[", "\\x22", "\"", "\\/", "/", "\\x5d", "]", "\\x27", "'")
+var (
+	// Removes the removeBefore and removeAfter strings from the script, leaving only the json
+	debloater = strings.NewReplacer(removeAfter, "", removeBefore, "")
+	// Replaces escaped characters with their non escaped version
+	unescaper = strings.NewReplacer("\\x5b", "[", "\\x22", "\"", "\\/", "/", "\\x5d", "]", "\\x27", "'")
+)
 
-// Gets a random photo link from "https://clients3.google.com/cast/chromecast/home/"
-func getImageUrlChromecast(index int) (string, error) {
+// Gets a random photo from "https://clients3.google.com/cast/chromecast/home/"
+func ChromecastWallpaper(height, width, crop int) (string, error) {
+	// initializing vars for later
+	var (
+		hiddenJSON string
+		parameters string
+	)
+
+	// Chooses a random number 0-49 which will be the photo selected from the list
+	imageIndex := rand.Intn(50)
+
 	// Parse the webpage
 	doc, err := parseWebpageGoquery("https://clients3.google.com/cast/chromecast/home/")
 	if err != nil {
 		return "", err
 	}
 
-	// Get script tag and load into 'hiddenJSON' the json
-	hiddenJSON := ""
+	// Finds the script tag (that doesn't just url to a js file) and strips it of the unneeded angular code
 	doc.Find("script").Each(func(i int, element *goquery.Selection) {
 		if element.Text() != "" {
-			hiddenJSON = strings.Replace(strings.Replace(element.Text(), removeBefore, "", 1), removeAfter, "", 1)
+			hiddenJSON = debloater.Replace(element.Text())
 		}
 	})
+
+	// The JSON gets unescaped and parsed
+	// (couldn't find a way to unescape it without replacers)
 	parsedJSON := gjson.Parse(unescaper.Replace(hiddenJSON))
-	return strings.ReplaceAll(parsedJSON.Get("0").Get(strconv.Itoa(index)).Get("0").String(), "\\u003d", "="), nil
-}
 
-func ChromecastWallpaper(height int, width int, crop int) (string, error) {
-	// Gets a random url from the list of 50 urls in the chromecast homepage
-	link, err := getImageUrlChromecast(rand.Intn(50))
-	if err != nil {
-		return "", err
-	}
-	var parameters string
+	// The url is basically ready, just need to unescape the =
+	imageURL := parsedJSON.Get(fmt.Sprintf("0.%d.0", imageIndex)).String()
+	finalURL := strings.ReplaceAll(imageURL, "\\u003d", "=")
 
-	// add crop
+	// Adds crop
 	switch crop {
-	// blind ratio
 	case 1:
-		parameters = fmt.Sprintf("w%d-h%d-c", width, height)
-		break
+		parameters = fmt.Sprintf("w%d-h%d-c", width, height) // blind ratio
 
-	// smart ratio
 	case 2:
-		parameters = fmt.Sprintf("w%d-h%d-p", width, height)
-		break
+		parameters = fmt.Sprintf("w%d-h%d-p", width, height) // smart ratio
 
 	default:
 		parameters = fmt.Sprintf("s%d", width)
-		break
 	}
 
 	// Replace default parameters with modified ones
-	finalLink := fmt.Sprintf("%s=%s", strings.Split(link, "=")[0], parameters)
-	//fmt.Println("Image URL:", finalLink)
-
-	return finalLink, nil
+	return fmt.Sprintf("%s=%s", strings.Split(finalURL, "=")[0], parameters), nil
 }
