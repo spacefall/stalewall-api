@@ -4,7 +4,6 @@ let nextwallurl = "";
 let visibleBg = 1; //is set to 1 to have a nice transition when first loading the page
 
 function newWall() {
-    console.log("wall");
     fetch("https://stalewall.vercel.app/api?bQlt=80")
         .then((res) => res.json())
         .then((out) => preloadAndSet(out["url"]))
