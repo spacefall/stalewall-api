@@ -1,5 +1,5 @@
 const cssvars = document.querySelector(":root");
-const timeBetweenImagesInSecs = 1000;
+const timeBetweenImagesInSecs = 10;
 let nextwallurl = "";
 let visibleBg = 1; //is set to 1 to have a nice transition when first loading the page
 
