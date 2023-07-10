@@ -4,19 +4,32 @@
  - Bing's image of the day
  - Chromecast screensaver
  - Windows Spotlight
- 
- ## Api queries
 
- #### Bing
- - `bMkt`: Uses specified market instead of a random one
- - `bRes`: Uses specified photo resolution instead of using `UHD`
- - `bQlt`: Uses specified photo quality instead of `100`
+## Usage
+You can find the api at https://stalewall.vercel.app/api. You can find the supported queries below.  
+A chromecast home-like demo is also available at https://stalewall.vercel.app/demo 
 
- #### Spotlight
- - `sLocale`: Uses specified locale instead of a random one
- - `sPortrait`: If present, pictures are going to be in portrait instead of landscape
+## Api queries
 
-#### Common
-- `res`: Tries to resize picture to requested resolution, while keeping aspect ratio. It must be written like this: `width`x`height`, e.g. `1920x1080`. This query is valid only for bing and chromecast and only if the `raw` query isn't specified.
-- `crop`: Crops the image from the center, requires `res`, is disabled when `raw` or `scrop` are specified. Works with chromecast and bing.
-- `scrop`: Aka smart crop, crops using an algorithm that finds the interesting part of the image, requires `res`, is disabled when `raw` is specified. Works with chromecast and bing.
+- `res`: Asks the api to resize the picture to the requested resolution, while keeping aspect ratio (if possible).  
+Supported on: Bing and Chromecast  
+Usage: `?res=1920x1080`  
+- `crop`: Asks the api to crop the image to the requested resolution, requires `res`.  
+Supported on: Bing and Chromecast  
+Usage: `?res=1920x1080&crop`  
+- `scrop`: Asks the api to crop the image to the requested resolution, using an algorithm to keep the best part of the in the frame, requires `res` and has priority over crop.  
+Supported on: Bing and Chromecast  
+Usage: `?res=1920x1080&scrop`  
+- `mkt`: Changes the market provided to the apis.  
+Supported on: Bing and Spotlight  
+Usage: `?mkt=en-US`  
+- `bRes`: Asks the bing api to provide an image with the specific resolution requested, this is different from using `res`, as that downscales the "raw" photo in real time. 
+Supported on: Bing
+Usage: `?bRes=1920x1080`  
+- `bQlt`: Asks the bing api to return a photo more or less compressed.  
+0 (min) = most compressed, 100 (max) = least compressed   
+Supported on: Bing   
+Usage: `?bQlt=100
+- `portrait`: Forces the Spotlight provider to return a portrait photo   
+Supported on: Spotlight  
+Usage: `?mkt=en-US`  `  
