@@ -4,6 +4,7 @@
  - Bing's image of the day
  - Chromecast screensaver
  - Windows Spotlight
+ - Nasa Astronomy Picture of the Day (currently in testing, might remove, also using demo key, will get full key if confirmed)
 
 ## Usage
 You can find the api at https://stalewall.vercel.app/api. You can find the supported queries below.  
