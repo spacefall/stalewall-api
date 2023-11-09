@@ -1,8 +1,7 @@
 package main
 
 import (
-    "fmt"
-    api "github.com/spaceox/stalewall/api"
+	api "github.com/spaceox/stalewall/api"
 	"net/http"
 )
 
@@ -10,9 +9,9 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		api.Handler(w, r)
 	})
+	println("Serving on http://localhost:3000")
 	err := http.ListenAndServe(":3000", nil)
-    fmt.Println("Serving on http://localhost:3000")
-    if err != nil {
-        panic(err)
-    }
+	if err != nil {
+		panic(err)
+	}
 }

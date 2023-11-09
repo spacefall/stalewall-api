@@ -2,7 +2,9 @@ package providers
 
 import (
 	"fmt"
+	"io"
 	"math/rand"
+	"net/http"
 
 	"github.com/tidwall/gjson"
 )
@@ -12,7 +14,21 @@ func BingWallpaper(market, resolution string, quality, height, width, crop int) 
 	bingURL := fmt.Sprintf("https://www.bing.com/HPImageArchive.aspx?format=js&idx=%d&n=1&mkt=%s", rand.Intn(7), market)
 
 	// Get Json
-	content, err := parseWebpageIO(bingURL)
+	res, err := http.Get(bingURL)
+	if err != nil {
+		return "", err
+	}
+
+	// ignoring unhandled error here, shouldn't be a problem and don't want to over complicate too much
+	defer res.Body.Close()
+
+	// Error "handling"
+	if res.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
+	}
+
+	// Gets the json in bytes
+	content, err := io.ReadAll(res.Body)
 	if err != nil {
 		return "", err
 	}

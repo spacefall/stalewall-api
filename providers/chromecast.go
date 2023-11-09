@@ -3,6 +3,7 @@ package providers
 import (
 	"fmt"
 	"math/rand"
+	"net/http"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -20,7 +21,7 @@ var (
 	unescaper = strings.NewReplacer("\\x5b", "[", "\\x22", "\"", "\\/", "/", "\\x5d", "]", "\\x27", "'")
 )
 
-// Gets a random photo from "https://clients3.google.com/cast/chromecast/home/"
+// ChromecastWallpaper - Gets a random photo from "https://clients3.google.com/cast/chromecast/home/"
 func ChromecastWallpaper(height, width, crop int) (string, error) {
 	// initializing vars for later
 	var (
@@ -31,8 +32,20 @@ func ChromecastWallpaper(height, width, crop int) (string, error) {
 	// Chooses a random number 0-49 which will be the photo selected from the list
 	imageIndex := rand.Intn(50)
 
-	// Parse the webpage
-	doc, err := parseWebpageGoquery("https://clients3.google.com/cast/chromecast/home/")
+	// Gets webpage data
+	res, err := http.Get("https://clients3.google.com/cast/chromecast/home/")
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	// return an error if operation is not successful
+	if res.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
+	}
+
+	// Parse response with goquery
+	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		return "", err
 	}

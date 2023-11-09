@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "name": "Run main.go",
+            "type": "go",
+            "workingDir": "$PROJECT_DIR$",
+            "goExecPath": "/usr/lib/go/bin/go",
+            "buildParams": [
+                //"github.com/spaceox/stalewall"
+                "main.go"
+            ]
+        },
+    ]
+}

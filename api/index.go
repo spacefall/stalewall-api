@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	providers "github.com/spaceox/stalewall/providers"
+	"github.com/spaceox/stalewall/providers"
 )
 
 var (
@@ -115,7 +116,7 @@ func getWall(config *settings) ([]byte, error) {
 		provider string
 		err      error
 	)
-	switch rand.Intn(3) {
+	switch rand.Intn(4) {
 	case 0:
 		// Bing wallpaper
 		provider = "bing"
@@ -128,6 +129,10 @@ func getWall(config *settings) ([]byte, error) {
 		// Spotlight wallpaper
 		provider = "spotlight"
 		imageUrl, err = providers.SpotlightWallpaper(config.sLocale, config.sPortrait)
+	case 3:
+		// Apod wall
+		provider = "nasa"
+		imageUrl, err = providers.NasaWallpaper("DEMO_KEY")
 	default:
 		return nil, errors.New("index out of range in switch on function getWall")
 	}
@@ -136,7 +141,12 @@ func getWall(config *settings) ([]byte, error) {
 		return nil, err
 	}
 
+	if imageUrl == "" {
+		return nil, fmt.Errorf("provider (%v) returned empty image url", provider)
+	}
+
 	return createJSON(provider, imageUrl)
+
 }
 
 // creates a json, it's put here to make json modifications more streamlined
@@ -150,18 +160,26 @@ func createJSON(provider, url string) ([]byte, error) {
 		URL:      url,
 	}
 
-	jsonData, err := json.Marshal(data)
+	buf := new(bytes.Buffer)
+	enc := json.NewEncoder(buf)
+	enc.SetEscapeHTML(false)
+
+	err := enc.Encode(data)
 	if err != nil {
 		return nil, err
 	}
 
-	return jsonData, nil
+	return buf.Bytes(), nil
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "You can't like do that")
+		_, err := fmt.Fprint(w, "You can't like do that")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
@@ -183,7 +201,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	// write the json
-	w.Write(wall)
+	_, err = w.Write(wall)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// writes the json to the page
 	/* _, err = fmt.Fprint(w, wall)
