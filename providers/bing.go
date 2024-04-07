@@ -9,51 +9,48 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-func BingWallpaper(market, resolution string, quality, height, width, crop int) (string, error) {
-	// Generates the bing api url, randomizing the index and market
-	bingURL := fmt.Sprintf("https://www.bing.com/HPImageArchive.aspx?format=js&idx=%d&n=1&mkt=%s", rand.Intn(7), market)
+var bMarkets = [27]string{"es-AR", "en-AU", "de-AT", "nl-BE", "fr-BE", "pt-BR", "en-CA", "fr-CA", "da-DK", "fi-FI", "fr-FR", "de-DE", "zh-HK", "en-IN", "en-ID", "it-IT", "ja-JP", "ko-KR", "zh-CN", "pl-PL", "ru-RU", "es-ES", "sv-SE", "tr-TR", "en-GB", "en-US", "es-US"}
+
+func BingWallpaper(height, width int, crop bool) (string, error) {
+	// Gets a random index (day of the week) and market and stitches it to the api url
+	URL := fmt.Sprintf("https://www.bing.com/HPImageArchive.aspx?format=js&idx=%d&n=1&mkt=%s", rand.Intn(7), bMarkets[rand.Intn(len(bMarkets))])
 
 	// Get Json
-	res, err := http.Get(bingURL)
+	res, err := http.Get(URL)
 	if err != nil {
 		return "", err
 	}
 
-	// ignoring unhandled error here, shouldn't be a problem and don't want to over complicate too much
 	defer res.Body.Close()
 
-	// Error "handling"
+	// Checking that the status code is 200
 	if res.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
 	}
 
-	// Gets the json in bytes
+	// Gets the response in bytes to decode it with gjson
 	content, err := io.ReadAll(res.Body)
 	if err != nil {
 		return "", err
 	}
 
-	// Parse urlbase
 	imageURLBase := gjson.GetBytes(content, "images.0.urlbase").String()
 
-	// Compose final url
-	finalURL := fmt.Sprintf("http://bing.com%s_%s.jpg&qlt=%d&p=0&pid=hp", imageURLBase, resolution, quality)
+	// Compose final url, last 2 options are file resolution and quality
+	finalURL := fmt.Sprintf("https://bing.com%s_%s.jpg&qlt=%d&p=0&pid=hp", imageURLBase, "UHD", 100)
 
-	// add height and width parameters if higher than 0
+	// Add height, width and crop
 	if height > 0 {
 		finalURL += fmt.Sprintf("&h=%d", height)
 	}
+
 	if width > 0 {
 		finalURL += fmt.Sprintf("&w=%d", width)
 	}
 
-	// add crop
-	switch crop {
-	case 1:
-		finalURL += "&c=4" // blind ratio
-
-	case 2:
-		finalURL += "&c=7" // smart ratio
+	if crop {
+		finalURL += "&c=7" // smart crop (should crop keeping the most interesting part of the image)
+		//finalURL += "&c=4" // standard crop (should crop from the center)
 	}
 
 	return finalURL, nil

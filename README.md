@@ -1,36 +1,23 @@
 
 # stalewall
  An api that returns a random background from:
- - Bing's image of the day
- - Chromecast screensaver
- - Windows Spotlight
- - Nasa Astronomy Picture of the Day (currently in testing, might remove, also using demo key, will get full key if confirmed)
+ - Bing [b] (image of the day)
+ - Chromecast [c] (screensaver) 
+ - Windows Spotlight [s]
+ - Unsplash [u] (source.unsplash.com/random)
+ - NASA APOD [n] (disabled by default)
 
 ## Usage
 You can find the api at https://stalewall.vercel.app/api. You can find the supported queries below.  
-A chromecast home-like demo is also available at https://stalewall.vercel.app/demo 
+A chromecast like demo is also available at https://stalewall.vercel.app/demo 
 
 ## Api queries
-
-- `res`: Asks the api to resize the picture to the requested resolution, while keeping aspect ratio (if possible).  
-Supported on: Bing and Chromecast  
-Usage: `?res=1920x1080`  
-- `crop`: Asks the api to crop the image to the requested resolution, requires `res`.  
-Supported on: Bing and Chromecast  
-Usage: `?res=1920x1080&crop`  
-- `scrop`: Asks the api to crop the image to the requested resolution, using an algorithm to keep the best part of the in the frame, requires `res` and has priority over crop.  
-Supported on: Bing and Chromecast  
-Usage: `?res=1920x1080&scrop`  
-- `mkt`: Changes the market provided to the apis.  
-Supported on: Bing and Spotlight  
-Usage: `?mkt=en-US`  
-- `bRes`: Asks the bing api to provide an image with the specific resolution requested, this is different from using `res`, as that downscales the "raw" photo in real time. 
-Supported on: Bing
-Usage: `?bRes=1920x1080`  
-- `bQlt`: Asks the bing api to return a photo more or less compressed.  
-0 (min) = most compressed, 100 (max) = least compressed   
-Supported on: Bing   
-Usage: `?bQlt=100
-- `portrait`: Forces the Spotlight provider to return a portrait photo   
-Supported on: Spotlight  
-Usage: `?mkt=en-US`  `  
+These queries are parsed by all providers except APOD, which is why it is disabled by default.
+- `res`: Asks the api to return a picture to the requested resolution (crops the image if nc is not present).
+Use 0x0 as res to get the full resolution (on unsplash will return a 16:9 image).  
+Example: `?res=1920x1080`  
+- `nc`: Asks the api to not crop the image.  
+Example: `?res=1920x1080&nc`  
+- `p`: List of providers to use.  
+The query is a string of characters that represent the providers to use. (you can find the character corresponding to the provider in the list above)  
+Example: `?p=bcs`  
