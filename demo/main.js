@@ -4,7 +4,7 @@ let nextwallurl = "";
 let visibleBg = 1; //is set to 1 to have a nice transition when first loading the page
 
 function newWall() {
-    fetch("https://stalewall.vercel.app/api?bQlt=80")
+    fetch("https://stalewall.vercel.app/api?res="+window.screen.width+"x"+window.screen.height)
         .then((res) => res.json())
         .then((out) => preloadAndSet(out["url"]))
         .catch((err) => {
@@ -14,7 +14,7 @@ function newWall() {
 
 function preloadAndSet(url) {
     cssvars.style.setProperty("--bg-preload", "url(" + url + ")");
-    if (visibleBg == 0) {
+    if (visibleBg === 0) {
         cssvars.style.setProperty("--bg-img-1", "url(" + nextwallurl + ")");
         cssvars.style.setProperty("--bg-1-opacity", "1  ");
         visibleBg = 1;
