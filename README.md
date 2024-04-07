@@ -5,7 +5,7 @@
  - Chromecast [c] (screensaver) 
  - Windows Spotlight [s]
  - Unsplash [u] (source.unsplash.com/random)
- - NASA APOD [n] (disabled by default)
+ - NASA APOD [n] (disabled by default, uses demo key)
 
 ## Usage
 You can find the api at https://stalewall.vercel.app/api. You can find the supported queries below.  
